@@ -133,14 +133,17 @@ function App() {
       try {
         // Only use WebGPU when a real GPU adapter exists, otherwise go straight to WASM.
         const gpu = typeof navigator !== 'undefined' ? (navigator as any).gpu : undefined;
-        webgpuAvailable = !!(gpu && (await gpu.requestAdapter()));
+        const adapter = gpu && localStorage.getItem('evolve.no-webgpu') !== '1' ? await gpu.requestAdapter() : null;
+        webgpuAvailable = !!(adapter && (await adapter.requestDevice()));
       } catch { webgpuAvailable = false; }
       if (webgpuAvailable) {
         setBackend('webgpu');
         try {
           return await load('webgpu');
         } catch {
-          // WebGPU can exist in the browser but still fail to initialize on a particular device.
+          // WebGPU failed on this device. The runtime can't switch backends in the same page,
+          // so remember it and reload once — the next load goes straight to WASM using cached files.
+          try { localStorage.setItem('evolve.no-webgpu', '1'); window.location.reload(); return new Promise(() => {}); } catch { /* fall through */ }
           setLoadProgress({});
           setBackend('wasm');
         }
