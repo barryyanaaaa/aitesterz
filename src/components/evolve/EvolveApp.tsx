@@ -1,5 +1,6 @@
 import { type FormEvent, type KeyboardEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { env, pipeline, TextStreamer } from '@huggingface/transformers';
+import { Link } from '@tanstack/react-router';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import {
@@ -12,6 +13,7 @@ import {
   Download,
   FileText,
   HardDrive,
+  Image as ImageIcon,
   Menu,
   MoreHorizontal,
   Plus,
@@ -311,6 +313,9 @@ function App() {
           <button onClick={createConversation} className="group flex h-10 w-full items-center gap-2.5 rounded-xl border border-[#3b5c45]/55 bg-[#1b2a20] px-3 text-left text-[12px] font-semibold text-[#bdd8c2] transition-colors hover:bg-[#223629]" data-testid="button-new-chat">
             <Plus size={15} className="text-[#a4d4af]" /> New conversation <span className="ml-auto mono text-[10px] text-[#728777]">⌘ K</span>
           </button>
+          <Link to="/create-image" className="mt-2 flex h-10 w-full items-center gap-2.5 rounded-xl border border-white/[.08] px-3 text-[12px] font-semibold text-[#9fb3a4] transition-colors hover:bg-white/[.04]" data-testid="link-image-studio">
+            <ImageIcon size={15} className="text-[#a4d4af]" /> Create an image
+          </Link>
         </div>
         <div className="mt-7 flex items-center justify-between px-5">
           <span className="mono text-[9px] font-medium uppercase tracking-[.16em] text-[#6e7d72]">Your conversations</span>
