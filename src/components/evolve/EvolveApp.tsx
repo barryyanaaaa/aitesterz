@@ -63,7 +63,7 @@ function bytesLabel(bytes?: number) {
 function App() {
   const [conversations, setConversations] = useState<Conversation[]>(readConversations);
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [selectedModelId, setSelectedModelId] = useState(MODELS[0].id);
+  const [selectedModelId, setSelectedModelId] = useState(MODELS[0]!.id);
   const [runtimeStatus, setRuntimeStatus] = useState<RuntimeStatus>('idle');
   const [loadProgress, setLoadProgress] = useState<Progress>({});
   const [runtimeError, setRuntimeError] = useState('');
@@ -80,7 +80,7 @@ function App() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const draftRef = useRef<HTMLTextAreaElement>(null);
 
-  const selectedModel = MODELS.find((model) => model.id === selectedModelId) ?? MODELS[0];
+  const selectedModel = MODELS.find((model) => model.id === selectedModelId) ?? MODELS[0]!;
   const activeConversation = conversations.find((chat) => chat.id === activeId) ?? null;
   const isLoaded = runtimeStatus === 'ready' && runtimeModelId.current === selectedModelId;
   const loadingPercent = typeof loadProgress.progress === 'number' ? Math.max(0, Math.min(100, loadProgress.progress)) : null;
@@ -129,7 +129,12 @@ function App() {
       progress_callback: progressCallback,
     });
     const promise = (async () => {
-      const webgpuAvailable = typeof navigator !== 'undefined' && 'gpu' in navigator;
+      let webgpuAvailable = false;
+      try {
+        // Only use WebGPU when a real GPU adapter exists, otherwise go straight to WASM.
+        const gpu = typeof navigator !== 'undefined' ? (navigator as any).gpu : undefined;
+        webgpuAvailable = !!(gpu && (await gpu.requestAdapter()));
+      } catch { webgpuAvailable = false; }
       if (webgpuAvailable) {
         setBackend('webgpu');
         try {
