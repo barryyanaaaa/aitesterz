@@ -168,6 +168,11 @@ function App() {
     }
   }, [selectedModelId]);
 
+  // Automatically prepare the selected model on open (cached after the first visit).
+  useEffect(() => {
+    if (runtimeModelId.current !== selectedModelId) void loadModel(selectedModelId);
+  }, [selectedModelId, loadModel]);
+
   const selectModel = (id: string) => {
     if (generating || runtimeStatus === 'loading') return;
     setSelectedModelId(id);
